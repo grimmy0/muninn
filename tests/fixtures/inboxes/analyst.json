@@ -1,0 +1,20 @@
+[
+  {
+    "from": "team-lead",
+    "text": "{\"type\":\"task_assignment\",\"taskId\":\"task-001\",\"subject\":\"Security audit: injection and auth bypass\",\"assignedTo\":\"analyst\",\"description\":\"Deep security audit of the codebase\",\"focusAreas\":[\"SQL injection\",\"auth bypass\"]}",
+    "timestamp": "2026-03-14T02:20:00.000Z",
+    "read": false
+  },
+  {
+    "from": "team-lead",
+    "text": "{\"type\":\"permission_response\",\"request_id\":\"perm-001\",\"approved\":true,\"responded_by\":\"team-lead\"}",
+    "timestamp": "2026-03-14T02:24:30.000Z",
+    "read": false
+  },
+  {
+    "from": "researcher",
+    "text": "Cross-referencing your findings with the LLM integration layer.",
+    "timestamp": "2026-03-14T02:27:00.000Z",
+    "read": false
+  }
+]

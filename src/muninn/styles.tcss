@@ -1,0 +1,104 @@
+Screen {
+    background: $surface;
+}
+
+#sidebar {
+    width: 28;
+    dock: left;
+    border-right: solid $accent;
+    height: 1fr;
+}
+
+#message-list {
+    width: 1fr;
+    height: 1fr;
+}
+
+#status-bar {
+    height: 1;
+    dock: bottom;
+    background: $accent;
+    padding: 0 1;
+    color: $text;
+}
+
+#messages-pane-content {
+    height: 1fr;
+}
+
+#tasks-list {
+    height: 1fr;
+    padding: 1;
+}
+
+#team-info {
+    height: 1fr;
+    padding: 1;
+}
+
+MessageBubble {
+    margin: 0 1;
+    padding: 0 1;
+    border: round $accent;
+    width: 1fr;
+}
+
+MessageBubble.system-event {
+    border: none;
+    text-style: dim;
+    text-align: center;
+    margin: 0 4;
+    padding: 0;
+}
+
+TaskCard {
+    margin: 0 1;
+    padding: 0 1;
+    border: double $accent;
+    width: 1fr;
+}
+
+RoomSidebar ListView {
+    height: 1fr;
+}
+
+/* Focus indicators */
+#sidebar:focus-within {
+    border-right: double $accent;
+}
+
+#message-list:focus {
+    background-tint: $accent 8%;
+}
+
+#tasks-list:focus {
+    background-tint: $accent 8%;
+}
+
+#team-info:focus {
+    background-tint: $accent 8%;
+}
+
+/* Command bar */
+CommandBar {
+    display: none;
+    height: 1;
+    dock: bottom;
+}
+
+CommandBar.visible {
+    display: block;
+}
+
+/* Help screen */
+HelpScreen {
+    align: center middle;
+}
+
+#help-overlay {
+    background: $surface 90%;
+    width: 60;
+    max-height: 80%;
+    padding: 1 2;
+    border: thick $accent;
+}

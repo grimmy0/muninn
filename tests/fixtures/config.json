@@ -1,0 +1,18 @@
+{
+  "name": "test-team",
+  "description": "A test team for Muninn unit tests",
+  "createdAt": 1773454977303,
+  "leadAgentId": "team-lead@test-team",
+  "leadSessionId": "abc-123",
+  "members": [
+    {
+      "agentId": "team-lead@test-team",
+      "name": "team-lead",
+      "agentType": "team-lead",
+      "model": "opus",
+      "joinedAt": 1773454977303,
+      "cwd": "/tmp",
+      "subscriptions": []
+    }
+  ]
+}

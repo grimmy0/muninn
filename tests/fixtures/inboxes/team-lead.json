@@ -1,0 +1,20 @@
+[
+  {
+    "from": "analyst",
+    "text": "{\"type\":\"permission_request\",\"request_id\":\"perm-001\",\"agent_id\":\"analyst\",\"tool_name\":\"Bash\",\"tool_use_id\":\"toolu_001\",\"description\":\"Run security scan\",\"input\":{\"command\":\"echo test\"}}",
+    "timestamp": "2026-03-14T02:24:20.813Z",
+    "read": false
+  },
+  {
+    "from": "researcher",
+    "text": "Found an interesting pattern in the auth middleware. Sharing notes.",
+    "timestamp": "2026-03-14T02:25:10.000Z",
+    "read": false
+  },
+  {
+    "from": "analyst",
+    "text": "{\"type\":\"idle_notification\",\"agent_id\":\"analyst\",\"reason\":\"Waiting for permission approval\"}",
+    "timestamp": "2026-03-14T02:26:00.000Z",
+    "read": false
+  }
+]

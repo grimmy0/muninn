@@ -1,0 +1,37 @@
+[project]
+name = "muninn"
+version = "0.1.0"
+description = "TUI for viewing agent team communications"
+readme = "README.md"
+license = "MIT"
+requires-python = ">=3.11"
+
+[project.urls]
+Homepage = "https://github.com/grimmy0/muninn"
+Repository = "https://github.com/grimmy0/muninn"
+dependencies = [
+    "textual>=1.0.0",
+    "watchfiles>=1.0.0",
+    "click>=8.1",
+]
+
+[project.scripts]
+muninn = "muninn.cli:main"
+
+[dependency-groups]
+dev = [
+    "textual-dev",
+    "pytest",
+    "pytest-asyncio",
+    "mypy>=1.19.1",
+    "ruff>=0.15.6",
+    "basedpyright>=1.38.2",
+]
+
+[tool.basedpyright]
+typeCheckingMode = "standard"
+reportImportCycles = false
+
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
