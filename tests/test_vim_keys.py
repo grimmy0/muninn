@@ -6,11 +6,9 @@ import asyncio
 import json
 from datetime import datetime, timezone
 from pathlib import Path
-from unittest.mock import patch
-
 import pytest
-from textual.app import App, ComposeResult
-from textual.widgets import ListView, Static
+from textual.app import App
+from textual.widgets import ListView
 
 from muninn.screens.main import MainScreen
 from muninn.widgets.command_bar import CommandBar
@@ -152,8 +150,6 @@ class TestScrollRouting:
         async with app.run_test() as pilot:
             # Focus message list
             await pilot.press("l")
-            msg_list = app.screen.query_one("#message-list", MessageList)
-            initial_y = msg_list.scroll_offset.y
             await pilot.press("j")
             await pilot.pause()
             # j should scroll down (or stay if already at bottom)
@@ -168,8 +164,6 @@ class TestScrollRouting:
         async with app.run_test() as pilot:
             # Focus sidebar ListView
             await pilot.press("h")
-            lv = app.screen.query_one("#room-list", ListView)
-            initial_idx = lv.index
             await pilot.press("j")
             await pilot.pause()
             # Should move cursor
@@ -224,7 +218,6 @@ class TestSearch:
             await pilot.pause()
             screen = app.screen
             assert isinstance(screen, MainScreen)
-            msg_list = screen.query_one("#message-list", MessageList)
             # Perform search
             screen._execute_search("Hello")
             assert len(screen._search_matches) > 0
