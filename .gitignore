@@ -16,6 +16,9 @@ __pycache__/
 dist/
 *.egg-info/
 
+# Generated version file (hatch-vcs)
+src/muninn/_version.py
+
 # Claude Code (user-specific)
 .claude/
 
