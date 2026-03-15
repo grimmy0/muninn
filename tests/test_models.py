@@ -7,7 +7,9 @@ from muninn.models.team import TeamConfig
 
 class TestStructuredPayload:
     def test_from_text_permission_request(self):
-        text = json.dumps({"type": "permission_request", "tool_name": "Bash", "description": "run ls"})
+        text = json.dumps(
+            {"type": "permission_request", "tool_name": "Bash", "description": "run ls"}
+        )
         payload = StructuredPayload.from_text(text)
         assert payload is not None
         assert payload.type == "permission_request"
@@ -26,8 +28,14 @@ class TestStructuredPayload:
         assert StructuredPayload.from_text('{"foo": "bar"}') is None
 
     def test_all_structured_types(self):
-        for t in ["permission_request", "permission_response", "task_assignment",
-                   "shutdown_request", "shutdown_approved", "idle_notification"]:
+        for t in [
+            "permission_request",
+            "permission_response",
+            "task_assignment",
+            "shutdown_request",
+            "shutdown_approved",
+            "idle_notification",
+        ]:
             text = json.dumps({"type": t, "data": "test"})
             payload = StructuredPayload.from_text(text)
             assert payload is not None
@@ -53,7 +61,9 @@ class TestMessage:
     def test_from_raw_structured(self):
         raw = {
             "from": "team-lead",
-            "text": json.dumps({"type": "task_assignment", "taskId": "1", "subject": "Do stuff"}),
+            "text": json.dumps(
+                {"type": "task_assignment", "taskId": "1", "subject": "Do stuff"}
+            ),
             "timestamp": "2026-03-14T02:24:20.813Z",
             "read": False,
         }

@@ -30,7 +30,9 @@ async def watch_team_dir(team_path: Path, target: MessagePump) -> None:
 
     inbox_dir = team_path / "inboxes"
     config_path = team_path / "config.json"
-    known_files = {str(p) for p in inbox_dir.glob("*.json")} if inbox_dir.is_dir() else set()
+    known_files = (
+        {str(p) for p in inbox_dir.glob("*.json")} if inbox_dir.is_dir() else set()
+    )
 
     paths_to_watch: list[str] = []
     if inbox_dir.is_dir():

@@ -48,8 +48,13 @@ class MessageList(VerticalScroll):
 
         if filter_permissions:
             messages = [
-                m for m in messages
-                if not (m.structured and m.structured.type in ("permission_request", "permission_response"))
+                m
+                for m in messages
+                if not (
+                    m.structured
+                    and m.structured.type
+                    in ("permission_request", "permission_response")
+                )
             ]
         self._messages = messages
 
@@ -65,7 +70,9 @@ class MessageList(VerticalScroll):
         if self._auto_scroll_enabled:
             self.call_after_refresh(self.scroll_end, animate=False)
 
-    def append_message(self, msg: Message, color: str, show_recipient: bool = True) -> None:
+    def append_message(
+        self, msg: Message, color: str, show_recipient: bool = True
+    ) -> None:
         self._messages.append(msg)
         content = render_message(msg, color, show_recipient)
         self.mount(Static(content, markup=True))

@@ -74,7 +74,9 @@ class MessageStore:
         return new_messages
 
     def _remove_messages_from_file(self, path_str: str) -> None:
-        self._all_messages = [m for m in self._all_messages if m.source_file != path_str]
+        self._all_messages = [
+            m for m in self._all_messages if m.source_file != path_str
+        ]
         # Rebuild indices
         self._by_recipient.clear()
         self._by_pair.clear()
@@ -106,23 +108,27 @@ class MessageStore:
         rooms: list[Room] = []
 
         # #general
-        rooms.append(Room(
-            room_type=RoomType.GENERAL,
-            name="general",
-            agents=tuple(sorted(self._known_agents)),
-            unread_count=sum(1 for m in self._all_messages if not m.read),
-        ))
+        rooms.append(
+            Room(
+                room_type=RoomType.GENERAL,
+                name="general",
+                agents=tuple(sorted(self._known_agents)),
+                unread_count=sum(1 for m in self._all_messages if not m.read),
+            )
+        )
 
         # @agent rooms
         for agent in sorted(self._known_agents):
             msgs = self._by_recipient.get(agent, [])
             if msgs:
-                rooms.append(Room(
-                    room_type=RoomType.AGENT,
-                    name=agent,
-                    agents=(agent,),
-                    unread_count=sum(1 for m in msgs if not m.read),
-                ))
+                rooms.append(
+                    Room(
+                        room_type=RoomType.AGENT,
+                        name=agent,
+                        agents=(agent,),
+                        unread_count=sum(1 for m in msgs if not m.read),
+                    )
+                )
 
         # Pair rooms (only pairs with 2+ messages)
         pair_counts = []
@@ -133,12 +139,14 @@ class MessageStore:
 
         for pair_key, _ in pair_counts:
             msgs = self._by_pair[pair_key]
-            rooms.append(Room(
-                room_type=RoomType.PAIR,
-                name=f"{pair_key[0]}↔{pair_key[1]}",
-                agents=pair_key,
-                unread_count=sum(1 for m in msgs if not m.read),
-            ))
+            rooms.append(
+                Room(
+                    room_type=RoomType.PAIR,
+                    name=f"{pair_key[0]}↔{pair_key[1]}",
+                    agents=pair_key,
+                    unread_count=sum(1 for m in msgs if not m.read),
+                )
+            )
 
         return rooms
 
@@ -177,11 +185,15 @@ class MessageStore:
                 task_id = msg.structured.data.get("taskId", "")
                 if task_id and task_id not in seen_ids:
                     seen_ids.add(task_id)
-                    tasks.append(Task(
-                        id=task_id,
-                        subject=msg.structured.data.get("subject", ""),
-                        description=msg.structured.data.get("description", ""),
-                        status="assigned",
-                        assigned_by=msg.structured.data.get("assignedBy", msg.sender),
-                    ))
+                    tasks.append(
+                        Task(
+                            id=task_id,
+                            subject=msg.structured.data.get("subject", ""),
+                            description=msg.structured.data.get("description", ""),
+                            status="assigned",
+                            assigned_by=msg.structured.data.get(
+                                "assignedBy", msg.sender
+                            ),
+                        )
+                    )
         return tasks

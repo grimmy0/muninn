@@ -18,6 +18,7 @@ from muninn.models.message import Message
 
 # --- Fixtures ---
 
+
 def _make_team_dir(tmp_path: Path) -> Path:
     """Create a minimal team directory with inboxes and config."""
     team = tmp_path / "test-team"

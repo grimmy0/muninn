@@ -135,6 +135,7 @@ class MainScreen(Screen[None]):
 
     def _start_watcher(self) -> None:
         from muninn.services.watcher import watch_team_dir
+
         self.run_worker(watch_team_dir(self._team_path, self), thread=False)
 
     def _update_sidebar(self) -> None:
@@ -165,7 +166,9 @@ class MainScreen(Screen[None]):
             idx = self._search_match_idx + 1 if self._search_matches else 0
             count = len(self._search_matches)
             search_status = f" | /{self._search_query} [{idx}/{count}]"
-        bar.update(f" {name} | {agents} agents | {total} messages{perm_status}{search_status}")
+        bar.update(
+            f" {name} | {agents} agents | {total} messages{perm_status}{search_status}"
+        )
 
     def _load_tasks(self) -> None:
         tasks_container = self.query_one("#tasks-list", VerticalScroll)
@@ -190,11 +193,15 @@ class MainScreen(Screen[None]):
                 _ = info.mount(Static(f"  {m.name} ({m.agent_type}) — {m.model}"))
                 _ = info.mount(Static(f"    cwd: {m.cwd}"))
 
-        config_agents: set[str] = {m.name for m in self._team_config.members} if self._team_config else set()
+        config_agents: set[str] = (
+            {m.name for m in self._team_config.members} if self._team_config else set()
+        )
         discovered = self._store.known_agents - config_agents
         if discovered:
             _ = info.mount(Static(""))
-            _ = info.mount(Static("[bold underline]Discovered Agents (not in config)[/]"))
+            _ = info.mount(
+                Static("[bold underline]Discovered Agents (not in config)[/]")
+            )
             for agent in sorted(discovered):
                 _ = info.mount(Static(f"  {agent}"))
 
@@ -315,13 +322,17 @@ class MainScreen(Screen[None]):
     def action_search_next(self) -> None:
         if not self._search_matches:
             return
-        self._search_match_idx = (self._search_match_idx + 1) % len(self._search_matches)
+        self._search_match_idx = (self._search_match_idx + 1) % len(
+            self._search_matches
+        )
         self._scroll_to_match()
 
     def action_search_prev(self) -> None:
         if not self._search_matches:
             return
-        self._search_match_idx = (self._search_match_idx - 1) % len(self._search_matches)
+        self._search_match_idx = (self._search_match_idx - 1) % len(
+            self._search_matches
+        )
         self._scroll_to_match()
 
     def _execute_search(self, query: str) -> None:
@@ -417,12 +428,16 @@ class MainScreen(Screen[None]):
                 show_recipient = self._current_room.room_type == RoomType.GENERAL
                 for msg in new_msgs:
                     if self._current_room.matches_message(msg.sender, msg.recipient):
-                        if self._filter_permissions and msg.structured and msg.structured.type in (
-                            "permission_request", "permission_response"
+                        if (
+                            self._filter_permissions
+                            and msg.structured
+                            and msg.structured.type
+                            in ("permission_request", "permission_response")
                         ):
                             continue
                         msg_list.append_message(
-                            msg, self._color_mgr.get_color(msg.sender),
+                            msg,
+                            self._color_mgr.get_color(msg.sender),
                             show_recipient=show_recipient,
                         )
             self._update_status_bar()

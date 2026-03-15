@@ -45,7 +45,9 @@ class MuninnApp(App[None]):
             self.team_config = load_team_config(team_dir)
             self._push_main()
         else:
-            self.exit(message=f"Team '{self._initial_name}' not found in {self._teams_dir}")
+            self.exit(
+                message=f"Team '{self._initial_name}' not found in {self._teams_dir}"
+            )
 
     def _auto_discover(self) -> None:
         teams = discover_teams(self._teams_dir)
@@ -56,9 +58,11 @@ class MuninnApp(App[None]):
             self._push_main()
         else:
             from muninn.screens.team_select import TeamSelectScreen
+
             _ = self.push_screen(TeamSelectScreen(teams))
 
     def _push_main(self) -> None:
         from muninn.screens.main import MainScreen
+
         assert self.team_path is not None
         _ = self.push_screen(MainScreen(self.team_path, self.team_config))

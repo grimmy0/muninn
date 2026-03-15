@@ -1,5 +1,3 @@
-
-
 from muninn.models.room import RoomType
 from muninn.services.message_store import MessageStore
 
@@ -45,8 +43,14 @@ class TestMessageStore:
             if msg.structured:
                 types_found.add(msg.structured.type)
 
-        expected = {"permission_request", "permission_response", "task_assignment",
-                    "shutdown_request", "shutdown_approved", "idle_notification"}
+        expected = {
+            "permission_request",
+            "permission_response",
+            "task_assignment",
+            "shutdown_request",
+            "shutdown_approved",
+            "idle_notification",
+        }
         assert expected == types_found
 
     def test_differential_reload_no_changes(self, inbox_dir):
@@ -70,7 +74,9 @@ class TestMessageStore:
         store = MessageStore()
         store.load_all_inboxes(inbox_dir)
         rooms = store.discover_rooms()
-        team_lead_room = [r for r in rooms if r.room_type == RoomType.AGENT and r.name == "team-lead"]
+        team_lead_room = [
+            r for r in rooms if r.room_type == RoomType.AGENT and r.name == "team-lead"
+        ]
         assert len(team_lead_room) == 1
         msgs = store.get_messages(team_lead_room[0])
         assert len(msgs) > 0

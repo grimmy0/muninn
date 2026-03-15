@@ -1,4 +1,3 @@
-
 from muninn.services.team_discovery import (
     discover_agents_from_inboxes,
     load_team_config,

@@ -13,7 +13,11 @@ def render_message(msg: Message, color: str, show_recipient: bool = True) -> str
     ts = msg.timestamp.strftime("%H:%M:%S")
 
     # System events: shutdown, idle — minimal rendering
-    if msg.structured and msg.structured.type in ("shutdown_request", "shutdown_approved", "idle_notification"):
+    if msg.structured and msg.structured.type in (
+        "shutdown_request",
+        "shutdown_approved",
+        "idle_notification",
+    ):
         if msg.structured.type == "idle_notification":
             summary = msg.structured.data.get("summary", "")
             return f"[dim]    {_escape(msg.sender)} idle — {_escape(summary)}  \\[{ts}][/dim]"

@@ -29,6 +29,10 @@ class TaskCard(Static):
             f"  Status: {task.status} | Assigned by: {task.assigned_by}",
         ]
         if task.description:
-            desc = task.description[:200] + "…" if len(task.description) > 200 else task.description
+            desc = (
+                task.description[:200] + "…"
+                if len(task.description) > 200
+                else task.description
+            )
             lines.append(f"  {desc}")
         return "\n".join(lines)
