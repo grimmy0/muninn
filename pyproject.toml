@@ -1,5 +1,5 @@
 [project]
-name = "muninn"
+name = "muninn-tui"
 dynamic = ["version"]
 description = "TUI for viewing agent team communications"
 readme = "README.md"

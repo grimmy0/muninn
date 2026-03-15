@@ -697,7 +697,7 @@ wheels = [
 ]
 
 [[package]]
-name = "muninn"
+name = "muninn-tui"
 source = { editable = "." }
 dependencies = [
     { name = "click" },
