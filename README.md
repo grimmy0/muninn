@@ -8,6 +8,7 @@
     <a href="#features">Features</a> &middot;
     <a href="#usage">Usage</a> &middot;
     <a href="#keybindings">Keybindings</a> &middot;
+    <a href="CHANGELOG.md">Changelog</a> &middot;
     <a href="#license">License</a>
   </p>
 </p>
@@ -36,18 +37,27 @@ Named after one of Odin's ravens — the raven of *memory* — Muninn gives you 
 
 ## Installation
 
-Requires **Python 3.11+** and [uv](https://docs.astral.sh/uv/).
+Requires **Python 3.11+**.
+
+### From PyPI
+
+```bash
+# With uv
+uv tool install muninn-tui
+
+# With pipx
+pipx install muninn-tui
+
+# With pip
+pip install muninn-tui
+```
+
+### From source
 
 ```bash
 git clone https://github.com/grimmy0/muninn.git
 cd muninn
 uv sync
-```
-
-For development (linting, type checking, tests):
-
-```bash
-uv sync --all-groups
 ```
 
 ## Usage
@@ -108,14 +118,18 @@ CLI (click)
 ## Development
 
 ```bash
+# Install dev dependencies
+uv sync --all-groups
+
 # Run tests
 uv run pytest
 
 # Type checking
 uv run basedpyright
 
-# Linting
-uv run ruff check src/
+# Linting & formatting
+uv run ruff check
+uv run ruff format --check
 
 # Run in dev mode with Textual console
 uv run textual run --dev src/muninn/app.py
