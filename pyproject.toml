@@ -37,6 +37,9 @@ reportImportCycles = false
 requires = ["hatchling", "hatch-vcs"]
 build-backend = "hatchling.build"
 
+[tool.hatch.build.targets.wheel]
+packages = ["src/muninn"]
+
 [tool.hatch.version]
 source = "vcs"
 
