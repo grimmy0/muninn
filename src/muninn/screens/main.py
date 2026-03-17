@@ -103,7 +103,8 @@ class MainScreen(Screen[None]):
         with TabbedContent(id="tabs"):
             with TabPane("Messages", id="messages-tab"):
                 with Horizontal(id="messages-pane-content"):
-                    yield RoomSidebar([], id="sidebar")
+                    lead = self._team_config.lead_agent_id if self._team_config else None
+                    yield RoomSidebar([], lead_agent_id=lead, id="sidebar")
                     yield MessageList(id="message-list")
             with TabPane("Tasks", id="tasks-tab"):
                 yield VerticalScroll(id="tasks-list")
