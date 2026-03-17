@@ -52,7 +52,9 @@ class MuninnApp(App[None]):
     def _auto_discover(self) -> None:
         teams = discover_teams(self._teams_dir)
         if not teams:
-            self.exit(message="No teams found")
+            from muninn.screens.waiting import WaitingScreen
+
+            _ = self.push_screen(WaitingScreen(self._teams_dir))
         elif len(teams) == 1:
             self.team_path, self.team_config = teams[0]
             self._push_main()
