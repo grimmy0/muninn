@@ -17,6 +17,9 @@ if TYPE_CHECKING:
 class WaitingScreen(Screen):
     BINDINGS = [("q", "quit", "Quit")]
 
+    def action_quit(self) -> None:
+        self.app.exit()
+
     DEFAULT_CSS = """
     WaitingScreen {
         align: center middle;
