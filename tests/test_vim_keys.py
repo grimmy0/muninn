@@ -8,7 +8,7 @@ from datetime import datetime, timezone
 from pathlib import Path
 import pytest
 from textual.app import App
-from textual.widgets import ListView
+from textual.widgets import Tree
 
 from muninn.screens.main import MainScreen
 from muninn.widgets.command_bar import CommandBar
@@ -128,7 +128,7 @@ class TestFocusSwitching:
         async with app.run_test() as pilot:
             await pilot.press("h")
             focused = app.focused
-            assert isinstance(focused, ListView)
+            assert isinstance(focused, Tree)
 
     @pytest.mark.asyncio
     async def test_l_focuses_content(self, tmp_path: Path) -> None:
@@ -159,11 +159,11 @@ class TestScrollRouting:
             await pilot.pause()
 
     @pytest.mark.asyncio
-    async def test_j_k_on_list_view(self, tmp_path: Path) -> None:
+    async def test_j_k_on_tree_view(self, tmp_path: Path) -> None:
         team = _make_team_dir(tmp_path)
         app = TestApp(team)
         async with app.run_test() as pilot:
-            # Focus sidebar ListView
+            # Focus sidebar Tree
             await pilot.press("h")
             await pilot.press("j")
             await pilot.pause()

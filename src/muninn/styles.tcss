@@ -58,7 +58,7 @@ TaskCard {
     width: 1fr;
 }
 
-RoomSidebar ListView {
+RoomSidebar Tree {
     height: 1fr;
 }
 

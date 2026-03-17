@@ -4,7 +4,6 @@ from __future__ import annotations
 
 import json
 from pathlib import Path
-from unittest.mock import patch
 
 import pytest
 from textual.app import App
@@ -60,7 +59,7 @@ class TestWaitingScreenCompose:
     @pytest.mark.asyncio
     async def test_has_expected_widgets(self, tmp_path: Path) -> None:
         app = WaitingTestApp(tmp_path)
-        async with app.run_test() as pilot:
+        async with app.run_test():
             screen = app.screen
             assert isinstance(screen, WaitingScreen)
             # Should have a loading indicator
