@@ -10,10 +10,10 @@ from textual.timer import Timer
 from textual.widgets import (
     Footer,
     Header,
-    ListView,
     Static,
     TabbedContent,
     TabPane,
+    Tree,
 )
 
 from muninn.models.room import Room, RoomType
@@ -36,6 +36,7 @@ class MainScreen(Screen[None]):
         Binding("2", "tab_tasks", "Tasks", show=True),
         Binding("3", "tab_team", "Team", show=True),
         Binding("p", "toggle_permissions", "Toggle Perms", show=True),
+        Binding("o", "toggle_protocol", "Toggle Protocol", show=True),
         # Panel focus
         Binding("h", "focus_sidebar", "Sidebar", show=False),
         Binding("l", "focus_content", "Content", show=False),
@@ -90,6 +91,7 @@ class MainScreen(Screen[None]):
         self._current_room: Room | None = None
         self._rooms: list[Room] = []
         self._filter_permissions = False
+        self._filter_protocol = False
         # gg state machine
         self._g_pending = False
         self._g_timer: Timer | None = None
@@ -122,7 +124,7 @@ class MainScreen(Screen[None]):
         self._store.load_all_inboxes(inbox_dir)
         self._color_mgr.assign_initial(sorted(self._store.known_agents))
 
-        self._rooms = self._store.discover_rooms()
+        self._rooms = self._store.discover_rooms(filter_protocol=self._filter_protocol)
         self._update_sidebar()
 
         if self._rooms:
@@ -162,13 +164,14 @@ class MainScreen(Screen[None]):
         agents = len(self._store.known_agents)
         total = self._store.total_count
         perm_status = " | perms hidden" if self._filter_permissions else ""
+        proto_status = " | protocol hidden" if self._filter_protocol else ""
         search_status = ""
         if self._search_query:
             idx = self._search_match_idx + 1 if self._search_matches else 0
             count = len(self._search_matches)
             search_status = f" | /{self._search_query} [{idx}/{count}]"
         bar.update(
-            f" {name} | {agents} agents | {total} messages{perm_status}{search_status}"
+            f" {name} | {agents} agents | {total} messages{perm_status}{proto_status}{search_status}"
         )
 
     def _load_tasks(self) -> None:
@@ -212,11 +215,11 @@ class MainScreen(Screen[None]):
         tabs = self.query_one("#tabs", TabbedContent)
         return tabs.active or "messages-tab"
 
-    def _get_scroll_target(self) -> VerticalScroll | ListView | None:
+    def _get_scroll_target(self) -> VerticalScroll | Tree | None:
         """Return the most appropriate scrollable for the current context."""
         focused = self.focused
-        # If a ListView is focused, use it directly
-        if isinstance(focused, ListView):
+        # If a Tree is focused, use it directly
+        if isinstance(focused, Tree):
             return focused
         # Otherwise, return the scrollable for the active tab
         active = self._get_active_tab()
@@ -234,8 +237,8 @@ class MainScreen(Screen[None]):
         active = self._get_active_tab()
         if active == "messages-tab":
             try:
-                lv = self.query_one("#room-list", ListView)
-                lv.focus()
+                tree = self.query_one("#room-tree", Tree)
+                tree.focus()
             except Exception:
                 pass
 
@@ -252,14 +255,14 @@ class MainScreen(Screen[None]):
 
     def action_scroll_down_line(self) -> None:
         target = self._get_scroll_target()
-        if isinstance(target, ListView):
+        if isinstance(target, Tree):
             target.action_cursor_down()
         elif isinstance(target, VerticalScroll):
             target.scroll_relative(y=1, animate=False)
 
     def action_scroll_up_line(self) -> None:
         target = self._get_scroll_target()
-        if isinstance(target, ListView):
+        if isinstance(target, Tree):
             target.action_cursor_up()
         elif isinstance(target, VerticalScroll):
             target.scroll_relative(y=-1, animate=False)
@@ -267,8 +270,8 @@ class MainScreen(Screen[None]):
     def action_scroll_to_end(self) -> None:
         self._cancel_g()
         target = self._get_scroll_target()
-        if isinstance(target, ListView):
-            target.index = len(target) - 1
+        if isinstance(target, Tree):
+            target.scroll_end(animate=False)
         elif isinstance(target, VerticalScroll):
             target.scroll_end(animate=False)
 
@@ -277,8 +280,8 @@ class MainScreen(Screen[None]):
             # Second g — scroll to top
             self._cancel_g()
             target = self._get_scroll_target()
-            if isinstance(target, ListView):
-                target.index = 0
+            if isinstance(target, Tree):
+                target.scroll_home(animate=False)
             elif isinstance(target, VerticalScroll):
                 target.scroll_home(animate=False)
         else:
@@ -412,6 +415,12 @@ class MainScreen(Screen[None]):
         self._refresh_messages()
         self._update_status_bar()
 
+    def action_toggle_protocol(self) -> None:
+        self._filter_protocol = not self._filter_protocol
+        self._rooms = self._store.discover_rooms(filter_protocol=self._filter_protocol)
+        self._update_sidebar()
+        self._update_status_bar()
+
     def action_quit(self) -> None:
         self.app.exit()
 
@@ -422,7 +431,7 @@ class MainScreen(Screen[None]):
         if new_msgs:
             for msg in new_msgs:
                 _ = self._color_mgr.get_color(msg.sender)
-            self._rooms = self._store.discover_rooms()
+            self._rooms = self._store.discover_rooms(filter_protocol=self._filter_protocol)
             self._update_sidebar()
             if self._current_room:
                 msg_list = self.query_one("#message-list", MessageList)
@@ -448,7 +457,7 @@ class MainScreen(Screen[None]):
         if new_msgs:
             for msg in new_msgs:
                 _ = self._color_mgr.get_color(msg.sender)
-            self._rooms = self._store.discover_rooms()
+            self._rooms = self._store.discover_rooms(filter_protocol=self._filter_protocol)
             self._update_sidebar()
             self._update_status_bar()
 

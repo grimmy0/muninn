@@ -79,11 +79,6 @@ class TestRoom:
         assert room.matches_message("a", "b")
         assert room.matches_message("c", "d")
 
-    def test_agent_room(self):
-        room = Room(RoomType.AGENT, "bob", ("bob",))
-        assert room.matches_message("alice", "bob")
-        assert not room.matches_message("bob", "alice")
-
     def test_pair_room(self):
         room = Room(RoomType.PAIR, "a↔b", ("a", "b"))
         assert room.matches_message("a", "b")
@@ -92,7 +87,6 @@ class TestRoom:
 
     def test_display_name(self):
         assert Room(RoomType.GENERAL, "general", ()).display_name == "#general"
-        assert Room(RoomType.AGENT, "bob", ("bob",)).display_name == "@bob"
         assert Room(RoomType.PAIR, "a↔b", ("a", "b")).display_name == "a↔b"
 
 

@@ -8,16 +8,30 @@ from muninn.models.message import Message
 from muninn.models.room import Room, RoomType
 from muninn.models.task import Task
 
+_PROTOCOL_TYPES = frozenset(
+    {
+        "idle_notification",
+        "shutdown_request",
+        "shutdown_approved",
+        "permission_request",
+        "permission_response",
+        "task_assignment",
+    }
+)
+
 
 def _pair_key(a: str, b: str) -> tuple[str, str]:
     """Create a sorted pair key for two agents."""
     return (a, b) if a <= b else (b, a)
 
 
+def _is_protocol_only(msgs: list[Message]) -> bool:
+    return all(m.structured and m.structured.type in _PROTOCOL_TYPES for m in msgs)
+
+
 class MessageStore:
     def __init__(self) -> None:
         self._all_messages: list[Message] = []
-        self._by_recipient: dict[str, list[Message]] = defaultdict(list)
         self._by_pair: dict[tuple[str, str], list[Message]] = defaultdict(list)
         self._file_msg_counts: dict[str, int] = {}
         self._known_agents: set[str] = set()
@@ -63,7 +77,6 @@ class MessageStore:
             new_messages.append(msg)
             self._known_agents.add(msg.sender)
             self._known_agents.add(msg.recipient)
-            self._by_recipient[recipient].append(msg)
             pair_key = _pair_key(msg.sender, msg.recipient)
             self._by_pair[pair_key].append(msg)
 
@@ -77,11 +90,15 @@ class MessageStore:
         self._all_messages = [
             m for m in self._all_messages if m.source_file != path_str
         ]
-        # Rebuild indices
-        self._by_recipient.clear()
+        # Rebuild pair index
         self._by_pair.clear()
         for msg in self._all_messages:
-            self._by_recipient[msg.recipient].append(msg)
+            pair_key = _pair_key(msg.sender, msg.recipient)
+            self._by_pair[pair_key].append(msg)
+
+    def _rebuild_pair_index(self) -> None:
+        self._by_pair.clear()
+        for msg in self._all_messages:
             pair_key = _pair_key(msg.sender, msg.recipient)
             self._by_pair[pair_key].append(msg)
 
@@ -91,20 +108,18 @@ class MessageStore:
         for path in sorted(inbox_dir.glob("*.json")):
             self.load_inbox_file(path)
         self.detect_broadcasts()
+        self._rebuild_pair_index()
 
     def get_messages(self, room: Room) -> list[Message]:
         if room.room_type == RoomType.GENERAL:
             return list(self._all_messages)
-        elif room.room_type == RoomType.AGENT:
-            msgs = self._by_recipient.get(room.name, [])
-            return sorted(msgs, key=lambda m: m.timestamp)
         elif room.room_type == RoomType.PAIR:
             pair_key = _pair_key(room.agents[0], room.agents[1])
             msgs = self._by_pair.get(pair_key, [])
             return sorted(msgs, key=lambda m: m.timestamp)
         return []
 
-    def discover_rooms(self) -> list[Room]:
+    def discover_rooms(self, *, filter_protocol: bool = False) -> list[Room]:
         rooms: list[Room] = []
 
         # #general
@@ -117,34 +132,36 @@ class MessageStore:
             )
         )
 
-        # @agent rooms
-        for agent in sorted(self._known_agents):
-            msgs = self._by_recipient.get(agent, [])
-            if msgs:
-                rooms.append(
-                    Room(
-                        room_type=RoomType.AGENT,
-                        name=agent,
-                        agents=(agent,),
-                        unread_count=sum(1 for m in msgs if not m.read),
-                    )
-                )
-
-        # Pair rooms (only pairs with 2+ messages)
+        # Pair rooms (threshold: at least 1 message)
         pair_counts = []
         for pair_key, msgs in self._by_pair.items():
-            if len(msgs) >= 2:
+            if msgs:
                 pair_counts.append((pair_key, len(msgs)))
         pair_counts.sort(key=lambda x: -x[1])
 
         for pair_key, _ in pair_counts:
             msgs = self._by_pair[pair_key]
+
+            if filter_protocol and _is_protocol_only(msgs):
+                continue
+
+            total = len(msgs)
+            structured_count = sum(
+                1
+                for m in msgs
+                if m.structured and m.structured.type in _PROTOCOL_TYPES
+            )
+            protocol_heavy = total > 0 and (structured_count / total) > 0.8
+
             rooms.append(
                 Room(
                     room_type=RoomType.PAIR,
                     name=f"{pair_key[0]}↔{pair_key[1]}",
                     agents=pair_key,
-                    unread_count=sum(1 for m in msgs if not m.read),
+                    unread_count=sum(
+                        1 for m in msgs if not m.read and not m.is_broadcast
+                    ),
+                    protocol_heavy=protocol_heavy,
                 )
             )
 
