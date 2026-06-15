@@ -1,11 +1,12 @@
 from __future__ import annotations
 
+from rich.markup import escape
 from muninn.models.message import Message
 
 
 def _escape(text: str) -> str:
     """Escape Rich markup characters in user text."""
-    return text.replace("[", "\\[")
+    return escape(text)
 
 
 def render_message(msg: Message, color: str, show_recipient: bool = True) -> str:
