@@ -77,6 +77,45 @@ class TestMessageStore:
         assert "alice" in pair_rooms[0].agents
         assert "bob" in pair_rooms[0].agents
 
+    def test_case_insensitive_duplicate_agents(self, tmp_path):
+        inbox_dir = tmp_path / "inboxes"
+        inbox_dir.mkdir()
+        # Message 1: alice to bob
+        (inbox_dir / "bob.json").write_text(
+            json.dumps(
+                [
+                    {
+                        "from": "alice",
+                        "text": "Hello",
+                        "timestamp": "2026-01-01T00:00:00Z",
+                        "read": False,
+                    }
+                ]
+            )
+        )
+        # Message 2: Bob to Alice (mixed case)
+        (inbox_dir / "Alice.json").write_text(
+            json.dumps(
+                [
+                    {
+                        "from": "Bob",
+                        "text": "Hi",
+                        "timestamp": "2026-01-01T00:00:01Z",
+                        "read": False,
+                    }
+                ]
+            )
+        )
+        store = MessageStore()
+        store.load_all_inboxes(inbox_dir)
+        rooms = store.discover_rooms()
+
+        pair_rooms = [r for r in rooms if r.room_type == RoomType.PAIR]
+        # Should merge Alice and bob into one room: alice↔bob
+        assert len(pair_rooms) == 1
+        assert "alice" in pair_rooms[0].agents
+        assert "bob" in pair_rooms[0].agents
+
     def test_broadcast_unread_excluded(self, tmp_path):
         inbox_dir = tmp_path / "inboxes"
         inbox_dir.mkdir()

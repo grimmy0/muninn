@@ -52,8 +52,8 @@ class Message:
             summary = cls._make_summary(structured)
 
         return cls(
-            sender=raw.get("from", "unknown"),
-            recipient=recipient,
+            sender=str(raw.get("from", "unknown")).lower(),
+            recipient=str(recipient).lower(),
             text=raw.get("text", ""),
             timestamp=timestamp,
             read=raw.get("read", False),
