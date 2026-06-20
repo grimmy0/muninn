@@ -41,6 +41,16 @@ class TestStructuredPayload:
             assert payload is not None
             assert payload.type == t
 
+    def test_from_text_size_limit(self):
+        large_json = '{"type": "task_assignment", "data": "' + ('x' * 65400) + '"}'
+        assert StructuredPayload.from_text(large_json) is not None
+        too_large_json = '{"type": "task_assignment", "data": "' + ('x' * 65600) + '"}'
+        assert StructuredPayload.from_text(too_large_json) is None
+
+    def test_from_text_depth_limit(self):
+        nested_json = '{"type": "task_assignment", "a": {"b": {"c": {"d": {"e": {"f": {"g": {"h": {"i": {"j": {"k": "v"}}}}}}}}}}}'
+        assert StructuredPayload.from_text(nested_json) is None
+
 
 class TestMessage:
     def test_from_raw_plain(self):

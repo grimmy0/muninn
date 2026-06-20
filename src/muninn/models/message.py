@@ -6,6 +6,31 @@ from datetime import datetime
 from typing import Any
 
 
+def _has_safe_nesting(text: str, max_depth: int = 10) -> bool:
+    """Check if the text has nesting depth of braces/brackets <= max_depth, ignoring strings."""
+    depth = 0
+    in_string = False
+    escaped = False
+    for char in text:
+        if escaped:
+            escaped = False
+            continue
+        if char == '\\':
+            escaped = True
+            continue
+        if char == '"':
+            in_string = not in_string
+            continue
+        if not in_string:
+            if char in "{[":
+                depth += 1
+                if depth > max_depth:
+                    return False
+            elif char in "]}":
+                depth = max_depth if depth <= 0 else depth - 1
+    return True
+
+
 @dataclass(frozen=True)
 class StructuredPayload:
     type: str
@@ -14,6 +39,10 @@ class StructuredPayload:
     @classmethod
     def from_text(cls, text: str) -> StructuredPayload | None:
         if not text or text[0] != "{":
+            return None
+        if len(text) > 65536:
+            return None
+        if not _has_safe_nesting(text, max_depth=10):
             return None
         try:
             parsed: dict[str, Any] = json.loads(text)
