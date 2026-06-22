@@ -1,12 +1,15 @@
 from __future__ import annotations
 
 import json
+import logging
 from collections import defaultdict
 from pathlib import Path
 
 from muninn.models.message import Message
 from muninn.models.room import Room, RoomType
 from muninn.models.task import Task
+
+logger = logging.getLogger(__name__)
 
 _PROTOCOL_TYPES = frozenset(
     {
@@ -54,7 +57,8 @@ class MessageStore:
 
         try:
             raw_data = json.loads(path.read_text())
-        except (json.JSONDecodeError, OSError):
+        except (json.JSONDecodeError, OSError) as e:
+            logger.warning("Failed to load/parse inbox file %s: %s", path, e, exc_info=True)
             return []
 
         if not isinstance(raw_data, list):

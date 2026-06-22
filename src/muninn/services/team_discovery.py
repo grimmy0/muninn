@@ -1,9 +1,12 @@
 from __future__ import annotations
 
 import json
+import logging
 from pathlib import Path
 
 from muninn.models.team import TeamConfig
+
+logger = logging.getLogger(__name__)
 
 
 def discover_teams(teams_dir: Path | None = None) -> list[tuple[Path, TeamConfig]]:
@@ -22,7 +25,8 @@ def discover_teams(teams_dir: Path | None = None) -> list[tuple[Path, TeamConfig
                 raw = json.loads(config_path.read_text())
                 config = TeamConfig.from_raw(raw)
                 results.append((entry, config))
-            except (json.JSONDecodeError, KeyError):
+            except (json.JSONDecodeError, KeyError) as e:
+                logger.warning("Failed to load/parse team config at %s: %s", config_path, e, exc_info=True)
                 continue
     return results
 
@@ -34,7 +38,8 @@ def load_team_config(team_path: Path) -> TeamConfig | None:
     try:
         raw = json.loads(config_path.read_text())
         return TeamConfig.from_raw(raw)
-    except (json.JSONDecodeError, KeyError):
+    except (json.JSONDecodeError, KeyError) as e:
+        logger.warning("Failed to load/parse team config at %s: %s", config_path, e, exc_info=True)
         return None
 
 

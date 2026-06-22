@@ -1,6 +1,8 @@
 from __future__ import annotations
 
+import logging
 from pathlib import Path
+import sys
 
 import click
 
@@ -20,6 +22,24 @@ import click
 )
 def main(path: Path | None, team: str | None, teams_dir: Path | None) -> None:
     """TUI for viewing agent team communications."""
+    log_dir = Path.home() / ".claude"
+    log_dir.mkdir(parents=True, exist_ok=True)
+    log_file = log_dir / "muninn.log"
+
+    logging.basicConfig(
+        filename=str(log_file),
+        level=logging.DEBUG,
+        format="%(asctime)s [%(levelname)s] %(name)s: %(message)s",
+    )
+
+    def handle_exception(exc_type, exc_value, exc_traceback):
+        if issubclass(exc_type, KeyboardInterrupt):
+            sys.__excepthook__(exc_type, exc_value, exc_traceback)
+            return
+        logging.critical("Uncaught exception", exc_info=(exc_type, exc_value, exc_traceback))
+
+    sys.excepthook = handle_exception
+
     from muninn.app import MuninnApp
 
     if path and team:
