@@ -38,9 +38,18 @@ class MessageStore:
         self._by_pair: dict[tuple[str, str], list[Message]] = defaultdict(list)
         self._file_msg_counts: dict[str, int] = {}
         self._known_agents: set[str] = set()
+        self._dirty = False
+
+    def _ensure_clean(self) -> None:
+        if self._dirty:
+            self._all_messages.sort(key=lambda m: m.timestamp)
+            self.detect_broadcasts()
+            self._rebuild_pair_index()
+            self._dirty = False
 
     @property
     def all_messages(self) -> list[Message]:
+        self._ensure_clean()
         return self._all_messages
 
     @property
@@ -51,7 +60,7 @@ class MessageStore:
     def total_count(self) -> int:
         return len(self._all_messages)
 
-    def load_inbox_file(self, path: Path) -> list[Message]:
+    def load_inbox_file(self, path: Path, *, _defer_clean: bool = False) -> list[Message]:
         path_str = str(path)
         recipient = path.stem
 
@@ -81,15 +90,15 @@ class MessageStore:
             new_messages.append(msg)
             self._known_agents.add(msg.sender)
             self._known_agents.add(msg.recipient)
-            pair_key = _pair_key(msg.sender, msg.recipient)
-            self._by_pair[pair_key].append(msg)
 
         self._all_messages.extend(new_messages)
-        self._all_messages.sort(key=lambda m: m.timestamp)
         self._file_msg_counts[path_str] = len(raw_data)
+        self._dirty = True
 
-        self.detect_broadcasts()
-        self._rebuild_pair_index()
+        if _defer_clean:
+            return []
+
+        self._ensure_clean()
 
         # Find and return the updated message instances with correct is_broadcast state
         updated_messages = []
@@ -108,11 +117,7 @@ class MessageStore:
         self._all_messages = [
             m for m in self._all_messages if m.source_file != path_str
         ]
-        # Rebuild pair index
-        self._by_pair.clear()
-        for msg in self._all_messages:
-            pair_key = _pair_key(msg.sender, msg.recipient)
-            self._by_pair[pair_key].append(msg)
+        self._dirty = True
 
     def _rebuild_pair_index(self) -> None:
         self._by_pair.clear()
@@ -124,20 +129,21 @@ class MessageStore:
         if not inbox_dir.is_dir():
             return
         for path in sorted(inbox_dir.glob("*.json")):
-            self.load_inbox_file(path)
-        self.detect_broadcasts()
-        self._rebuild_pair_index()
+            self.load_inbox_file(path, _defer_clean=True)
+        self._dirty = True
 
     def get_messages(self, room: Room) -> list[Message]:
+        self._ensure_clean()
         if room.room_type == RoomType.GENERAL:
             return list(self._all_messages)
         elif room.room_type == RoomType.PAIR:
             pair_key = _pair_key(room.agents[0], room.agents[1])
             msgs = self._by_pair.get(pair_key, [])
-            return sorted(msgs, key=lambda m: m.timestamp)
+            return list(msgs)
         return []
 
     def discover_rooms(self, *, filter_protocol: bool = False) -> list[Room]:
+        self._ensure_clean()
         rooms: list[Room] = []
 
         # #general
@@ -213,6 +219,7 @@ class MessageStore:
                         )
 
     def extract_tasks(self) -> list[Task]:
+        self._ensure_clean()
         tasks: list[Task] = []
         seen_ids: set[str] = set()
         for msg in self._all_messages:
