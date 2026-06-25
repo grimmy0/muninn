@@ -192,3 +192,39 @@ class TestMessageStore:
         assert len(tasks) >= 1
         assert all(t.id for t in tasks)
         assert all(t.subject for t in tasks)
+
+
+    def test_load_inbox_file_detects_broadcast_at_runtime(self, tmp_path):
+        inbox_dir = tmp_path / "inboxes"
+        inbox_dir.mkdir()
+        
+        # Message 1 in bob's inbox
+        msg = {
+            "from": "alice",
+            "text": "Hello world",
+            "timestamp": "2026-01-01T00:00:00Z",
+            "read": False,
+        }
+        bob_path = inbox_dir / "bob.json"
+        bob_path.write_text(json.dumps([msg]))
+        
+        store = MessageStore()
+        # Initial load bob
+        store.load_inbox_file(bob_path)
+        assert len(store.all_messages) == 1
+        assert not store.all_messages[0].is_broadcast
+        
+        # Now write the same message to carol's inbox
+        carol_path = inbox_dir / "carol.json"
+        carol_path.write_text(json.dumps([msg]))
+        
+        # Load carol's file (simulates file watcher detecting new file / update)
+        new_msgs = store.load_inbox_file(carol_path)
+        
+        # It should detect it as a broadcast
+        assert len(new_msgs) == 1
+        assert new_msgs[0].is_broadcast is True
+        
+        # Verify that the original message in bob's room is also updated to is_broadcast=True
+        assert all(m.is_broadcast for m in store.all_messages)
+

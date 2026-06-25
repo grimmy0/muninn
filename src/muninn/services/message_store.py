@@ -88,7 +88,21 @@ class MessageStore:
         self._all_messages.sort(key=lambda m: m.timestamp)
         self._file_msg_counts[path_str] = len(raw_data)
 
-        return new_messages
+        self.detect_broadcasts()
+        self._rebuild_pair_index()
+
+        # Find and return the updated message instances with correct is_broadcast state
+        updated_messages = []
+        for msg in new_messages:
+            for m in self._all_messages:
+                if (m.source_file == msg.source_file and 
+                    m.sender == msg.sender and 
+                    m.recipient == msg.recipient and 
+                    m.timestamp == msg.timestamp and 
+                    m.text == msg.text):
+                    updated_messages.append(m)
+                    break
+        return updated_messages
 
     def _remove_messages_from_file(self, path_str: str) -> None:
         self._all_messages = [
