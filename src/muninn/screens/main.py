@@ -10,6 +10,7 @@ from textual.timer import Timer
 from textual.widgets import (
     Footer,
     Header,
+    OptionList,
     Static,
     TabbedContent,
     TabPane,
@@ -215,7 +216,7 @@ class MainScreen(Screen[None]):
         tabs = self.query_one("#tabs", TabbedContent)
         return tabs.active or "messages-tab"
 
-    def _get_scroll_target(self) -> VerticalScroll | Tree | None:
+    def _get_scroll_target(self) -> VerticalScroll | Tree | OptionList | None:
         """Return the most appropriate scrollable for the current context."""
         focused = self.focused
         # If a Tree is focused, use it directly
@@ -257,14 +258,14 @@ class MainScreen(Screen[None]):
         target = self._get_scroll_target()
         if isinstance(target, Tree):
             target.action_cursor_down()
-        elif isinstance(target, VerticalScroll):
+        elif isinstance(target, (VerticalScroll, OptionList)):
             target.scroll_relative(y=1, animate=False)
 
     def action_scroll_up_line(self) -> None:
         target = self._get_scroll_target()
         if isinstance(target, Tree):
             target.action_cursor_up()
-        elif isinstance(target, VerticalScroll):
+        elif isinstance(target, (VerticalScroll, OptionList)):
             target.scroll_relative(y=-1, animate=False)
 
     def action_scroll_to_end(self) -> None:
@@ -272,7 +273,7 @@ class MainScreen(Screen[None]):
         target = self._get_scroll_target()
         if isinstance(target, Tree):
             target.scroll_end(animate=False)
-        elif isinstance(target, VerticalScroll):
+        elif isinstance(target, (VerticalScroll, OptionList)):
             target.scroll_end(animate=False)
 
     def action_g_pressed(self) -> None:
@@ -282,7 +283,7 @@ class MainScreen(Screen[None]):
             target = self._get_scroll_target()
             if isinstance(target, Tree):
                 target.scroll_home(animate=False)
-            elif isinstance(target, VerticalScroll):
+            elif isinstance(target, (VerticalScroll, OptionList)):
                 target.scroll_home(animate=False)
         else:
             self._g_pending = True
@@ -300,22 +301,22 @@ class MainScreen(Screen[None]):
 
     def action_half_page_down(self) -> None:
         target = self._get_scroll_target()
-        if isinstance(target, VerticalScroll):
+        if isinstance(target, (VerticalScroll, OptionList)):
             target.scroll_relative(y=target.size.height // 2, animate=False)
 
     def action_half_page_up(self) -> None:
         target = self._get_scroll_target()
-        if isinstance(target, VerticalScroll):
+        if isinstance(target, (VerticalScroll, OptionList)):
             target.scroll_relative(y=-(target.size.height // 2), animate=False)
 
     def action_full_page_down(self) -> None:
         target = self._get_scroll_target()
-        if isinstance(target, VerticalScroll):
+        if isinstance(target, (VerticalScroll, OptionList)):
             target.scroll_page_down(animate=False)
 
     def action_full_page_up(self) -> None:
         target = self._get_scroll_target()
-        if isinstance(target, VerticalScroll):
+        if isinstance(target, (VerticalScroll, OptionList)):
             target.scroll_page_up(animate=False)
 
     # --- Search actions ---

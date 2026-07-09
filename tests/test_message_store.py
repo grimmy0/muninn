@@ -228,3 +228,39 @@ class TestMessageStore:
         # Verify that the original message in bob's room is also updated to is_broadcast=True
         assert all(m.is_broadcast for m in store.all_messages)
 
+    def test_load_all_inboxes_ignores_symlinks(self, tmp_path):
+        inbox_dir = tmp_path / "inboxes"
+        inbox_dir.mkdir()
+
+        # Create a valid json file
+        valid_path = inbox_dir / "valid.json"
+        valid_path.write_text(json.dumps([{
+            "from": "alice",
+            "text": "Hello",
+            "timestamp": "2026-01-01T00:00:00Z",
+            "read": False,
+        }]))
+
+        # Create a target file outside
+        target_dir = tmp_path.parent / "target-outside-inbox"
+        target_dir.mkdir(exist_ok=True)
+        target_path = target_dir / "symlink_target.json"
+        target_path.write_text(json.dumps([{
+            "from": "attacker",
+            "text": "Exploit",
+            "timestamp": "2026-01-01T00:00:00Z",
+            "read": False,
+        }]))
+
+        # Symlink in inboxes directory
+        sym_path = inbox_dir / "attacker.json"
+        sym_path.symlink_to(target_path)
+
+        store = MessageStore()
+        store.load_all_inboxes(inbox_dir)
+
+        # Should only load messages from valid.json, NOT from the symlink!
+        assert len(store.all_messages) == 1
+        assert store.all_messages[0].sender == "alice"
+
+
