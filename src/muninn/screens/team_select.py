@@ -38,4 +38,4 @@ class TeamSelectScreen(Screen):
         app.team_path = path
         app.team_config = config
         app.pop_screen()
-        app.push_screen("main")
+        app._push_main()
