@@ -95,6 +95,8 @@ class MessageStore:
 
             new_messages = []
             for raw in new_entries:
+                if not isinstance(raw, dict):
+                    continue
                 msg = Message.from_raw(raw, recipient, path_str)
                 new_messages.append(msg)
                 self._known_agents.add(msg.sender)
