@@ -27,7 +27,7 @@ def _has_safe_nesting(text: str, max_depth: int = 10) -> bool:
                 if depth > max_depth:
                     return False
             elif char in "]}":
-                depth = max_depth if depth <= 0 else depth - 1
+                depth = 0 if depth <= 0 else depth - 1
     return True
 
 
