@@ -69,8 +69,12 @@ class Message:
 
     @classmethod
     def from_raw(cls, raw: dict[str, Any], recipient: str, source_file: str) -> Message:
-        structured = StructuredPayload.from_text(raw.get("text", ""))
-        ts_str: str = raw.get("timestamp", "")
+        raw_text = raw.get("text", "")
+        text_str = raw_text if isinstance(raw_text, str) else str(raw_text)
+        structured = StructuredPayload.from_text(text_str)
+
+        ts_val = raw.get("timestamp", "")
+        ts_str = ts_val if isinstance(ts_val, str) else str(ts_val)
         try:
             timestamp = datetime.fromisoformat(ts_str.replace("Z", "+00:00"))
         except (ValueError, AttributeError):
@@ -80,13 +84,18 @@ class Message:
         if structured:
             summary = cls._make_summary(structured)
 
+        sender_val = raw.get("from", "unknown")
+        sender_str = str(sender_val).lower()
+        color_val = raw.get("color", "")
+        color_str = color_val if isinstance(color_val, str) else str(color_val)
+
         return cls(
-            sender=str(raw.get("from", "unknown")).lower(),
+            sender=sender_str,
             recipient=str(recipient).lower(),
-            text=raw.get("text", ""),
+            text=text_str,
             timestamp=timestamp,
-            read=raw.get("read", False),
-            color=raw.get("color", ""),
+            read=bool(raw.get("read", False)),
+            color=color_str,
             summary=summary,
             structured=structured,
             is_broadcast=False,
