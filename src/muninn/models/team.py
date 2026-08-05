@@ -47,7 +47,10 @@ class TeamConfig:
             created = datetime.fromtimestamp(created_ts / 1000)
         except (ValueError, TypeError, OSError):
             created = datetime.min
-        members = tuple(MemberInfo.from_raw(m) for m in raw.get("members", []))
+        raw_members = raw.get("members", [])
+        if not isinstance(raw_members, list):
+            raw_members = []
+        members = tuple(MemberInfo.from_raw(m) for m in raw_members if isinstance(m, dict))
         return cls(
             name=raw.get("name", ""),
             description=raw.get("description", ""),
