@@ -92,6 +92,7 @@ Muninn expects a team directory containing:
 | `/` | Search messages |
 | `n` / `N` | Next / previous search match |
 | `p` | Toggle permission messages |
+| `r` | Toggle message read status |
 | `1` `2` `3` | Switch to Messages / Tasks / Team tab |
 | `?` | Show help |
 | `:q` | Quit |

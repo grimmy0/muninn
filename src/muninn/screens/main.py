@@ -38,6 +38,7 @@ class MainScreen(Screen[None]):
         Binding("3", "tab_team", "Team", show=True),
         Binding("p", "toggle_permissions", "Toggle Perms", show=True),
         Binding("o", "toggle_protocol", "Toggle Protocol", show=True),
+        Binding("r", "mark_read", "Mark Read", show=True),
         # Panel focus
         Binding("h", "focus_sidebar", "Sidebar", show=False),
         Binding("l", "focus_content", "Content", show=False),
@@ -421,6 +422,21 @@ class MainScreen(Screen[None]):
         self._rooms = self._store.discover_rooms(filter_protocol=self._filter_protocol)
         self._update_sidebar()
         self._update_status_bar()
+
+    def action_mark_read(self) -> None:
+        try:
+            msg_list = self.query_one("#message-list", MessageList)
+            idx = msg_list.highlighted
+            if idx is not None and 0 <= idx < len(msg_list._messages):
+                target_msg = msg_list._messages[idx]
+                updated = self._store.mark_read(target_msg, read=not target_msg.read)
+                if updated:
+                    self._refresh_messages()
+                    self._rooms = self._store.discover_rooms(filter_protocol=self._filter_protocol)
+                    self._update_sidebar()
+                    self._update_status_bar()
+        except Exception:
+            pass
 
     def action_quit(self) -> None:
         self.app.exit()

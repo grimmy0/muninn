@@ -263,4 +263,14 @@ class TestMessageStore:
         assert len(store.all_messages) == 1
         assert store.all_messages[0].sender == "alice"
 
+    def test_mark_read(self, inbox_dir):
+        store = MessageStore()
+        store.load_all_inboxes(inbox_dir)
+        first_msg = store.all_messages[0]
+        assert not first_msg.read
+        updated = store.mark_read(first_msg, read=True)
+        assert updated is not None
+        assert updated.read
+        assert store.all_messages[0].read
+
 

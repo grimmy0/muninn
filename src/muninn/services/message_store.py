@@ -259,3 +259,31 @@ class MessageStore:
                             )
                         )
             return tasks
+
+    def mark_read(self, message: Message, read: bool = True) -> Message | None:
+        with self._lock:
+            for idx, m in enumerate(self._all_messages):
+                if (
+                    m.source_file == message.source_file
+                    and m.sender == message.sender
+                    and m.recipient == message.recipient
+                    and m.timestamp == message.timestamp
+                    and m.text == message.text
+                ):
+                    updated = Message(
+                        sender=m.sender,
+                        recipient=m.recipient,
+                        text=m.text,
+                        timestamp=m.timestamp,
+                        read=read,
+                        color=m.color,
+                        summary=m.summary,
+                        structured=m.structured,
+                        is_broadcast=m.is_broadcast,
+                        source_file=m.source_file,
+                    )
+                    self._all_messages[idx] = updated
+                    self._dirty = True
+                    self._ensure_clean()
+                    return updated
+            return None
