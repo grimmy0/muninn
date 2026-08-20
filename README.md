@@ -110,7 +110,7 @@ CLI (click)
          ├─ TeamInfo        ← team config panel
          ├─ CommandBar      ← search and command input
          └─ Services
-             ├─ MessageStore     ← load & filter messages
+             ├─ MessageStore     ← load, filter, & search messages by agent
              ├─ TeamDiscovery    ← find teams on disk
              ├─ ColorManager     ← agent color assignments
              └─ Watcher          ← filesystem change detection

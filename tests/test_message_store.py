@@ -273,4 +273,11 @@ class TestMessageStore:
         assert updated.read
         assert store.all_messages[0].read
 
+    def test_get_messages_for_agent(self, inbox_dir):
+        store = MessageStore()
+        store.load_all_inboxes(inbox_dir)
+        lead_msgs = store.get_messages_for_agent("team-lead")
+        assert len(lead_msgs) > 0
+        assert all(m.sender == "team-lead" or m.recipient == "team-lead" for m in lead_msgs)
+
 

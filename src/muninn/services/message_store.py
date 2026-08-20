@@ -159,6 +159,17 @@ class MessageStore:
                 return list(msgs)
             return []
 
+    def get_messages_for_agent(self, agent_name: str) -> list[Message]:
+        """Return all messages sent by or addressed to agent_name."""
+        target = agent_name.lower()
+        with self._lock:
+            self._ensure_clean()
+            return [
+                m
+                for m in self._all_messages
+                if m.sender == target or m.recipient == target
+            ]
+
     def discover_rooms(self, *, filter_protocol: bool = False) -> list[Room]:
         with self._lock:
             self._ensure_clean()
