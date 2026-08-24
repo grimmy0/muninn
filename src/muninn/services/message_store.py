@@ -170,6 +170,17 @@ class MessageStore:
                 if m.sender == target or m.recipient == target
             ]
 
+    def get_unread_count_for_agent(self, agent_name: str) -> int:
+        """Return count of unread messages sent by or addressed to agent_name."""
+        target = agent_name.lower()
+        with self._lock:
+            self._ensure_clean()
+            return sum(
+                1
+                for m in self._all_messages
+                if not m.read and (m.sender == target or m.recipient == target)
+            )
+
     def discover_rooms(self, *, filter_protocol: bool = False) -> list[Room]:
         with self._lock:
             self._ensure_clean()

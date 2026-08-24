@@ -280,4 +280,10 @@ class TestMessageStore:
         assert len(lead_msgs) > 0
         assert all(m.sender == "team-lead" or m.recipient == "team-lead" for m in lead_msgs)
 
+    def test_get_unread_count_for_agent(self, inbox_dir):
+        store = MessageStore()
+        store.load_all_inboxes(inbox_dir)
+        unread = store.get_unread_count_for_agent("team-lead")
+        assert unread > 0
+
 
