@@ -286,4 +286,13 @@ class TestMessageStore:
         unread = store.get_unread_count_for_agent("team-lead")
         assert unread > 0
 
+    def test_export_inbox_to_dict(self, inbox_dir):
+        store = MessageStore()
+        store.load_all_inboxes(inbox_dir)
+        exported = store.export_inbox_to_dict("team-lead")
+        assert len(exported) > 0
+        assert "sender" in exported[0]
+        assert "text" in exported[0]
+        assert "timestamp" in exported[0]
+
 

@@ -34,6 +34,7 @@ Named after one of Odin's ravens — the raven of *memory* — Muninn gives you 
 - **Color-coded agents** — each agent gets a distinct color for fast visual scanning
 - **Permission filtering** — toggle permission request/response noise with `p`
 - **Structured message parsing** — understands permission requests, task assignments, shutdown events, and idle notifications
+- **Inbox JSON Export** — export agent conversations and inbox history to structured dictionaries via `export_inbox_to_dict`
 
 ## Installation
 

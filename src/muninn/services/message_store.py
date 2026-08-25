@@ -309,3 +309,19 @@ class MessageStore:
                     self._ensure_clean()
                     return updated
             return None
+
+    def export_inbox_to_dict(self, agent_name: str | None = None) -> list[dict]:
+        """Export messages as list of serializable dictionaries, optionally filtered by agent."""
+        messages = self.get_messages_for_agent(agent_name) if agent_name else self.all_messages
+        return [
+            {
+                "sender": m.sender,
+                "recipient": m.recipient,
+                "text": m.text,
+                "timestamp": m.timestamp.isoformat(),
+                "read": m.read,
+                "is_broadcast": m.is_broadcast,
+                "source_file": str(m.source_file),
+            }
+            for m in messages
+        ]
