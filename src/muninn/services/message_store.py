@@ -338,3 +338,14 @@ class MessageStore:
                 for m in self._all_messages
                 if q in m.text.lower() or q in m.sender.lower() or q in m.recipient.lower()
             ]
+
+    def get_messages_by_type(self, msg_type: str) -> list[Message]:
+        """Return all messages matching the given structured message type."""
+        t = msg_type.strip().lower()
+        with self._lock:
+            self._ensure_clean()
+            return [
+                m
+                for m in self._all_messages
+                if m.structured and m.structured.type.lower() == t
+            ]

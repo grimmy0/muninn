@@ -302,4 +302,12 @@ class TestMessageStore:
         assert len(matches) > 0
         assert len(store.search_messages("nonexistentquery12345")) == 0
 
+    def test_get_messages_by_type(self, inbox_dir):
+        store = MessageStore()
+        store.load_all_inboxes(inbox_dir)
+        perms = store.get_messages_by_type("permission_request")
+        assert isinstance(perms, list)
+        nonexistent = store.get_messages_by_type("fake_type_does_not_exist")
+        assert len(nonexistent) == 0
+
 
