@@ -295,4 +295,11 @@ class TestMessageStore:
         assert "text" in exported[0]
         assert "timestamp" in exported[0]
 
+    def test_search_messages(self, inbox_dir):
+        store = MessageStore()
+        store.load_all_inboxes(inbox_dir)
+        matches = store.search_messages("lead")
+        assert len(matches) > 0
+        assert len(store.search_messages("nonexistentquery12345")) == 0
+
 

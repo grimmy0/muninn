@@ -325,3 +325,16 @@ class MessageStore:
             }
             for m in messages
         ]
+
+    def search_messages(self, query: str) -> list[Message]:
+        """Return all messages matching the given query string (case-insensitive)."""
+        q = query.strip().lower()
+        if not q:
+            return []
+        with self._lock:
+            self._ensure_clean()
+            return [
+                m
+                for m in self._all_messages
+                if q in m.text.lower() or q in m.sender.lower() or q in m.recipient.lower()
+            ]
