@@ -349,3 +349,12 @@ class MessageStore:
                 for m in self._all_messages
                 if m.structured and m.structured.type.lower() == t
             ]
+
+    def count_messages_by_sender(self) -> dict[str, int]:
+        """Return a mapping of sender name to total sent message count."""
+        with self._lock:
+            self._ensure_clean()
+            counts: dict[str, int] = defaultdict(int)
+            for m in self._all_messages:
+                counts[m.sender] += 1
+            return dict(counts)

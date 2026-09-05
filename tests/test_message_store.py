@@ -310,4 +310,12 @@ class TestMessageStore:
         nonexistent = store.get_messages_by_type("fake_type_does_not_exist")
         assert len(nonexistent) == 0
 
+    def test_count_messages_by_sender(self, inbox_dir):
+        store = MessageStore()
+        store.load_all_inboxes(inbox_dir)
+        counts = store.count_messages_by_sender()
+        assert isinstance(counts, dict)
+        assert sum(counts.values()) == store.total_count
+        assert any(count > 0 for count in counts.values())
+
 
