@@ -358,3 +358,13 @@ class MessageStore:
             for m in self._all_messages:
                 counts[m.sender] += 1
             return dict(counts)
+
+    def get_recent_messages(self, limit: int = 10) -> list[Message]:
+        """Return the N most recent messages ordered by timestamp descending."""
+        if limit <= 0:
+            return []
+        with self._lock:
+            self._ensure_clean()
+            return list(reversed(self._all_messages[-limit:]))
+
+

@@ -318,4 +318,15 @@ class TestMessageStore:
         assert sum(counts.values()) == store.total_count
         assert any(count > 0 for count in counts.values())
 
+    def test_get_recent_messages(self, inbox_dir):
+        store = MessageStore()
+        store.load_all_inboxes(inbox_dir)
+        recent = store.get_recent_messages(limit=3)
+        assert len(recent) <= 3
+        assert len(recent) > 0
+        assert store.get_recent_messages(limit=0) == []
+        if len(recent) >= 2:
+            assert recent[0].timestamp >= recent[1].timestamp
+
+
 
