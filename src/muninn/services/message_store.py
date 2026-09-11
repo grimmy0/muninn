@@ -367,4 +367,11 @@ class MessageStore:
             self._ensure_clean()
             return list(reversed(self._all_messages[-limit:]))
 
+    def get_unread_messages(self) -> list[Message]:
+        """Return all unread messages ordered chronologically."""
+        with self._lock:
+            self._ensure_clean()
+            return [m for m in self._all_messages if not m.read]
+
+
 

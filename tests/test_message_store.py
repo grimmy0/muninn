@@ -328,5 +328,13 @@ class TestMessageStore:
         if len(recent) >= 2:
             assert recent[0].timestamp >= recent[1].timestamp
 
+    def test_get_unread_messages(self, inbox_dir):
+        store = MessageStore()
+        store.load_all_inboxes(inbox_dir)
+        unread = store.get_unread_messages()
+        assert isinstance(unread, list)
+        assert all(not m.read for m in unread)
+
+
 
 
