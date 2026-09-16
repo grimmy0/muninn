@@ -335,6 +335,20 @@ class TestMessageStore:
         assert isinstance(unread, list)
         assert all(not m.read for m in unread)
 
+    def test_mark_all_as_read(self, inbox_dir):
+        store = MessageStore()
+        store.load_all_inboxes(inbox_dir)
+        unread_initial = store.get_unread_messages()
+        assert len(unread_initial) > 0
+
+        marked = store.mark_all_as_read()
+        assert marked == len(unread_initial)
+        assert len(store.get_unread_messages()) == 0
+
+        # Subsequent call marks 0
+        assert store.mark_all_as_read() == 0
+
+
 
 
 

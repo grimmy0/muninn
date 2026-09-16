@@ -373,5 +373,32 @@ class MessageStore:
             self._ensure_clean()
             return [m for m in self._all_messages if not m.read]
 
+    def mark_all_as_read(self, agent_name: str | None = None) -> int:
+        """Mark all unread messages (optionally filtered by recipient or sender agent) as read, returning count marked."""
+        count = 0
+        with self._lock:
+            for idx, m in enumerate(self._all_messages):
+                if not m.read:
+                    if agent_name is None or m.recipient == agent_name or m.sender == agent_name:
+                        self._all_messages[idx] = Message(
+                            sender=m.sender,
+                            recipient=m.recipient,
+                            text=m.text,
+                            timestamp=m.timestamp,
+                            read=True,
+                            color=m.color,
+                            summary=m.summary,
+                            structured=m.structured,
+                            is_broadcast=m.is_broadcast,
+                            source_file=m.source_file,
+                        )
+                        count += 1
+            if count > 0:
+                self._dirty = True
+                self._ensure_clean()
+        return count
+
+
+
 
 
