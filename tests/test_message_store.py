@@ -348,6 +348,23 @@ class TestMessageStore:
         # Subsequent call marks 0
         assert store.mark_all_as_read() == 0
 
+    def test_filter_messages_by_date_range(self, inbox_dir):
+        store = MessageStore()
+        store.load_all_inboxes(inbox_dir)
+        all_msgs = store.all_messages
+
+        if all_msgs:
+            earliest = min(m.timestamp for m in all_msgs).isoformat()
+            latest = max(m.timestamp for m in all_msgs).isoformat()
+
+            # Broad window matches all
+            matched = store.filter_messages_by_date_range(earliest, latest)
+            assert len(matched) == len(all_msgs)
+
+            # Invalid date returns empty
+            assert store.filter_messages_by_date_range("invalid", "dates") == []
+
+
 
 
 

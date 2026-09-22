@@ -4,6 +4,7 @@ import json
 import logging
 import threading
 from collections import defaultdict
+from datetime import datetime
 from pathlib import Path
 
 from muninn.models.message import Message
@@ -397,6 +398,22 @@ class MessageStore:
                 self._dirty = True
                 self._ensure_clean()
         return count
+
+    def filter_messages_by_date_range(self, start_iso: str, end_iso: str) -> list[Message]:
+        """Return all messages whose timestamp falls within [start_iso, end_iso] inclusive."""
+        try:
+            start_dt = datetime.fromisoformat(start_iso)
+            end_dt = datetime.fromisoformat(end_iso)
+        except (ValueError, TypeError):
+            return []
+        with self._lock:
+            self._ensure_clean()
+            return [
+                m
+                for m in self._all_messages
+                if start_dt <= m.timestamp <= end_dt
+            ]
+
 
 
 
