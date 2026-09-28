@@ -364,6 +364,27 @@ class TestMessageStore:
             # Invalid date returns empty
             assert store.filter_messages_by_date_range("invalid", "dates") == []
 
+    def test_get_conversation_thread(self):
+        from muninn.services.message_store import get_conversation_thread
+
+        msgs = [
+            {"sender": "agent1", "conversation_id": "thread-101", "text": "start task"},
+            {"sender": "agent2", "conversation_id": "thread-102", "text": "unrelated"},
+            {"sender": "agent1", "thread_id": "thread-101", "text": "follow up"},
+            {"sender": "agent3", "structured": {"data": {"conversation_id": "thread-101"}}, "text": "done"},
+            "not-a-dict",
+        ]
+
+        thread = get_conversation_thread(msgs, "thread-101")
+        assert len(thread) == 3
+        assert thread[0]["text"] == "start task"
+        assert thread[1]["text"] == "follow up"
+        assert thread[2]["text"] == "done"
+
+        # Non-matching thread ID
+        assert get_conversation_thread(msgs, "thread-999") == []
+
+
 
 
 

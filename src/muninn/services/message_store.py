@@ -415,6 +415,24 @@ class MessageStore:
             ]
 
 
+def get_conversation_thread(messages: list[dict], conversation_id: str) -> list[dict]:
+    """Filter and return messages belonging to a specific conversation ID.
+
+    Matches 'conversation_id' or 'thread_id' in message dicts or within nested structured payloads.
+    """
+    thread: list[dict] = []
+    for msg in messages:
+        if not isinstance(msg, dict):
+            continue
+        c_id = msg.get("conversation_id") or msg.get("thread_id")
+        if not c_id and isinstance(msg.get("structured"), dict):
+            c_id = msg["structured"].get("data", {}).get("conversation_id") or msg["structured"].get("conversation_id")
+        if c_id == conversation_id:
+            thread.append(msg)
+    return thread
+
+
+
 
 
 
