@@ -384,6 +384,36 @@ class TestMessageStore:
         # Non-matching thread ID
         assert get_conversation_thread(msgs, "thread-999") == []
 
+    def test_filter_messages_by_sender(self, inbox_dir):
+        store = MessageStore()
+        store.load_all_inboxes(inbox_dir)
+
+        team_lead_msgs = store.filter_messages_by_sender("team-lead")
+        assert len(team_lead_msgs) > 0
+        assert all(m.sender == "team-lead" for m in team_lead_msgs)
+
+        assert store.filter_messages_by_sender("") == []
+        assert store.filter_messages_by_sender("non-existent-agent") == []
+
+    def test_filter_message_dicts_by_sender(self):
+        from muninn.services.message_store import filter_message_dicts_by_sender
+
+        msgs = [
+            {"sender": "alice", "text": "hello"},
+            {"sender": "bob", "text": "hi"},
+            {"sender": "alice", "text": "world"},
+            "invalid-entry",
+        ]
+
+        filtered = filter_message_dicts_by_sender(msgs, "alice")
+        assert len(filtered) == 2
+        assert filtered[0]["text"] == "hello"
+        assert filtered[1]["text"] == "world"
+
+        assert filter_message_dicts_by_sender(msgs, "carol") == []
+        assert filter_message_dicts_by_sender(msgs, "") == []
+
+
 
 
 

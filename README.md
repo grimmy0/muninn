@@ -34,7 +34,7 @@ Named after one of Odin's ravens — the raven of *memory* — Muninn gives you 
 - **Color-coded agents** — each agent gets a distinct color for fast visual scanning
 - **Permission filtering** — toggle permission request/response noise with `p`
 - **Structured message parsing** — understands permission requests, task assignments, shutdown events, and idle notifications
-- **Inbox JSON Export & Search API** — programmatic message text querying (`search_messages`), date range filtering (`filter_messages_by_date_range`), recent message retrieval (`get_recent_messages`), unread filtering (`get_unread_messages`), bulk read-status updating (`mark_all_as_read`), type filtering (`get_messages_by_type`), sender volume counting (`count_messages_by_sender`), structured dictionary export (`export_inbox_to_dict`), and thread extraction (`get_conversation_thread`)
+- **Inbox JSON Export & Search API** — programmatic message text querying (`search_messages`), date range filtering (`filter_messages_by_date_range`), sender filtering (`filter_messages_by_sender`, `filter_message_dicts_by_sender`), recent message retrieval (`get_recent_messages`), unread filtering (`get_unread_messages`), bulk read-status updating (`mark_all_as_read`), type filtering (`get_messages_by_type`), sender volume counting (`count_messages_by_sender`), structured dictionary export (`export_inbox_to_dict`), and thread extraction (`get_conversation_thread`)
 
 ## Installation
 

@@ -414,6 +414,15 @@ class MessageStore:
                 if start_dt <= m.timestamp <= end_dt
             ]
 
+    def filter_messages_by_sender(self, sender: str) -> list[Message]:
+        """Return all messages authored by the specified sender name."""
+        target = sender.strip()
+        if not target:
+            return []
+        with self._lock:
+            self._ensure_clean()
+            return [m for m in self._all_messages if m.sender == target]
+
 
 def get_conversation_thread(messages: list[dict], conversation_id: str) -> list[dict]:
     """Filter and return messages belonging to a specific conversation ID.
@@ -430,6 +439,14 @@ def get_conversation_thread(messages: list[dict], conversation_id: str) -> list[
         if c_id == conversation_id:
             thread.append(msg)
     return thread
+
+
+def filter_message_dicts_by_sender(messages: list[dict], sender: str) -> list[dict]:
+    """Filter raw message dictionaries matching the specified sender string."""
+    target = sender.strip()
+    if not target:
+        return []
+    return [m for m in messages if isinstance(m, dict) and m.get("sender") == target]
 
 
 
