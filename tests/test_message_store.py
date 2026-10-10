@@ -413,10 +413,26 @@ class TestMessageStore:
         assert filter_message_dicts_by_sender(msgs, "carol") == []
         assert filter_message_dicts_by_sender(msgs, "") == []
 
+    def test_get_broadcast_messages(self, inbox_dir):
+        store = MessageStore()
+        store.load_all_inboxes(inbox_dir)
 
+        broadcasts = store.get_broadcast_messages()
+        assert isinstance(broadcasts, list)
+        assert all(m.is_broadcast for m in broadcasts)
 
+    def test_filter_broadcast_message_dicts(self):
+        from muninn.services.message_store import filter_broadcast_message_dicts
 
+        msgs = [
+            {"sender": "alice", "is_broadcast": True, "text": "team announcement"},
+            {"sender": "bob", "is_broadcast": False, "text": "direct message"},
+            {"sender": "carol", "text": "implicit non-broadcast"},
+            {"sender": "dave", "is_broadcast": True, "text": "status broadcast"},
+            "invalid-entry",
+        ]
 
-
-
-
+        broadcasts = filter_broadcast_message_dicts(msgs)
+        assert len(broadcasts) == 2
+        assert broadcasts[0]["text"] == "team announcement"
+        assert broadcasts[1]["text"] == "status broadcast"

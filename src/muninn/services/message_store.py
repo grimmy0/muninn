@@ -423,6 +423,12 @@ class MessageStore:
             self._ensure_clean()
             return [m for m in self._all_messages if m.sender == target]
 
+    def get_broadcast_messages(self) -> list[Message]:
+        """Return all messages flagged as broadcasts across the team."""
+        with self._lock:
+            self._ensure_clean()
+            return [m for m in self._all_messages if m.is_broadcast]
+
 
 def get_conversation_thread(messages: list[dict], conversation_id: str) -> list[dict]:
     """Filter and return messages belonging to a specific conversation ID.
@@ -447,6 +453,12 @@ def filter_message_dicts_by_sender(messages: list[dict], sender: str) -> list[di
     if not target:
         return []
     return [m for m in messages if isinstance(m, dict) and m.get("sender") == target]
+
+
+def filter_broadcast_message_dicts(messages: list[dict]) -> list[dict]:
+    """Filter raw message dictionaries flagged with is_broadcast=True."""
+    return [m for m in messages if isinstance(m, dict) and bool(m.get("is_broadcast"))]
+
 
 
 
