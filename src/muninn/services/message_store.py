@@ -429,6 +429,15 @@ class MessageStore:
             self._ensure_clean()
             return [m for m in self._all_messages if m.is_broadcast]
 
+    def filter_messages_by_recipient(self, recipient: str) -> list[Message]:
+        """Return all messages addressed to the specified recipient agent."""
+        target = recipient.strip()
+        if not target:
+            return []
+        with self._lock:
+            self._ensure_clean()
+            return [m for m in self._all_messages if m.recipient == target]
+
 
 def get_conversation_thread(messages: list[dict], conversation_id: str) -> list[dict]:
     """Filter and return messages belonging to a specific conversation ID.
@@ -458,6 +467,14 @@ def filter_message_dicts_by_sender(messages: list[dict], sender: str) -> list[di
 def filter_broadcast_message_dicts(messages: list[dict]) -> list[dict]:
     """Filter raw message dictionaries flagged with is_broadcast=True."""
     return [m for m in messages if isinstance(m, dict) and bool(m.get("is_broadcast"))]
+
+
+def filter_message_dicts_by_recipient(messages: list[dict], recipient: str) -> list[dict]:
+    """Filter raw message dictionaries matching the specified recipient string."""
+    target = recipient.strip()
+    if not target:
+        return []
+    return [m for m in messages if isinstance(m, dict) and m.get("recipient") == target]
 
 
 

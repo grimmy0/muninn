@@ -436,3 +436,33 @@ class TestMessageStore:
         assert len(broadcasts) == 2
         assert broadcasts[0]["text"] == "team announcement"
         assert broadcasts[1]["text"] == "status broadcast"
+
+    def test_filter_messages_by_recipient(self, inbox_dir):
+        store = MessageStore()
+        store.load_all_inboxes(inbox_dir)
+
+        lead_msgs = store.filter_messages_by_recipient("team-lead")
+        assert len(lead_msgs) > 0
+        assert all(m.recipient == "team-lead" for m in lead_msgs)
+
+        assert store.filter_messages_by_recipient("") == []
+        assert store.filter_messages_by_recipient("non-existent-agent") == []
+
+    def test_filter_message_dicts_by_recipient(self):
+        from muninn.services.message_store import filter_message_dicts_by_recipient
+
+        msgs = [
+            {"sender": "alice", "recipient": "bob", "text": "hello bob"},
+            {"sender": "bob", "recipient": "alice", "text": "hi alice"},
+            {"sender": "carol", "recipient": "bob", "text": "ping bob"},
+            "invalid-entry",
+        ]
+
+        filtered = filter_message_dicts_by_recipient(msgs, "bob")
+        assert len(filtered) == 2
+        assert filtered[0]["text"] == "hello bob"
+        assert filtered[1]["text"] == "ping bob"
+
+        assert filter_message_dicts_by_recipient(msgs, "dave") == []
+        assert filter_message_dicts_by_recipient(msgs, "") == []
+
